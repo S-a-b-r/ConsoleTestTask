@@ -51,44 +51,42 @@ class ConsoleTaskHandler
                 break;
             }
             default:
-                print_r("Сепаратор не распознан\n");
+                return print_r("Сепаратор не распознан");
         }
         return $users;
     }
 
     protected function commandProcessing(array $users)
     {
-        switch ($this->command) {
-            case "countAverageLineCount":
-            {
-                for ($i = 0; $i < count($users); $i++) {
-                    if(is_numeric($users[$i][0])){
-                        $avg = $this->countAverageLineCountForUser($users[$i][0]);
-                        print_r($avg." - среднее кол-во строк в файлах пользователя ".$users[$i][1]."\n");
-                    }
-                    else{
-                        print_r("Не удалось получить id пользователя в файле. Проверьте правильность написания команды,".
-                         "вот что мы получили вместо Id: ".$users[$i][0]."\n");
-                    }
-                };
-                return;
+        for ($i = 0; $i < count($users); $i++){
+
+            if(!is_numeric($users[$i][0])) {
+                return print_r(
+                    "Не удалось получить id пользователя в файле. Проверьте правильность написания команды,".
+                    "вот что мы получили вместо Id: ".$users[$i][0]."\n"
+                );
             }
-            case "replaceDates":
-            {
-                for ($i = 0; $i < count($users); $i++) {
-                    if(is_numeric($users[$i][0])) {
-                        $countDates = $this->replaceDatesForUser($users[$i][0]);
-                        print_r($countDates." - кол-во замен дат в файлах пользователя ".$users[$i][1]."\n");
-                    }
-                    else{
-                        print_r("Не удалось получить id пользователя в файле. Проверьте правильность написания команды,".
-                         "вот что мы получили вместо Id: ".$users[$i][0]."\n");
-                    }
+
+            switch ($this->command){
+                case "countAverageLineCount":
+                {
+                    $avg = $this->countAverageLineCountForUser($users[$i][0]);
+                    print_r($avg." - среднее кол-во строк в файлах пользователя ".$users[$i][1]."\n");
+                    break;
                 }
-                return;
+                case "replaceDates":
+                {
+                    $countDates = $this->replaceDatesForUser($users[$i][0]);
+                    print_r($countDates." - кол-во замен дат в файлах пользователя ".$users[$i][1]."\n");
+                    break;
+                }
+                default:
+                {
+                    return print_r("Неизвестный тип задачи");
+                }
             }
         }
-        return print_r("Неизвестный тип задачи");
+        return true;
     }
 
     protected function countAverageLineCountForUser(int $userId)
@@ -106,7 +104,7 @@ class ConsoleTaskHandler
         if ($userFilesCount !== 0) {
             return $countStringInUserFiles / $userFilesCount;
         }
-        return "0";
+        return 0;
     }
 
     protected function replaceDatesForUser(int $userId)
@@ -133,6 +131,6 @@ class ConsoleTaskHandler
         }
         $fileStream = fopen("output_texts/".$fileName, "w+");
         fwrite($fileStream, $text);
-        return;
+        fclose($fileStream);
     }
 }
